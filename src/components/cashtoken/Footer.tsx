@@ -33,45 +33,9 @@ const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
             </div>
           </div>
 
-          {/* Quick Links */}
-          <div>
-            <h4 className="font-semibold text-[#DAA520] mb-4 text-sm tracking-wider">QUICK LINKS</h4>
-            <ul className="space-y-2.5">
-              {[
-                { label: 'Home', page: 'home' },
-                { label: 'Marketplace', page: 'brands' },
-                { label: 'News Letter', page: 'newsletter' },
-                { label: 'About Us', page: 'team' },
-
-              ].map((item) => (
-                <li key={item.page}>
-                  <button onClick={() => onNavigate(item.page)} className="text-gray-400 hover:text-[#DAA520] transition-colors text-sm">
-                    {item.label}
-                  </button>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          {/* Dashboards */}
-          <div>
-            <h4 className="font-semibold text-[#DAA520] mb-4 text-sm tracking-wider">DASHBOARDS</h4>
-            <ul className="space-y-2.5">
-              {[
-                { label: 'Customers', page: 'consumer' },
-                { label: 'Business', page: 'merchant' },
-              ].map((item) => (
-                <li key={item.page}>
-                  <button onClick={() => onNavigate(item.page)} className="text-gray-400 hover:text-[#DAA520] transition-colors text-sm">
-                    {item.label}
-                  </button>
-                </li>
-              ))}
-            </ul>
-          </div>
 
           {/* Legal */}
-          <div>
+          <div className="lg:col-start-4">
             <h4 className="font-semibold text-[#DAA520] mb-4 text-sm tracking-wider">LEGAL</h4>
             <ul className="space-y-2.5">
               {['Terms & Conditions', 'Privacy Policy', 'Cookie Policy', 'Contact Us'].map((item) => (
