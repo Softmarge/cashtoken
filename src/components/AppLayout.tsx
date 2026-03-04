@@ -15,7 +15,9 @@ import NewsletterPage from './cashtoken/NewsletterPage';
 import OurTeam from './cashtoken/OurTeam';
 import FAQsPage from './cashtoken/FAQsPage';
 import AuthModal from './cashtoken/AuthModal';
-import HomeTabBar, { type HomeTab } from './cashtoken/HomeTabBar';
+// HomeTabBar removed - V1/MVP uses single nav bar only
+// V1 tab type: home | business | team
+type HomeTab = 'home' | 'business' | 'team';
 
 
 
@@ -268,7 +270,7 @@ const AppLayout: React.FC = () => {
       case 'home':
         return (
           <>
-            <HomeTabBar activeTab={homeTab} onTabChange={handleHomeTabChange} />
+            {/* HomeTabBar removed - V1/MVP uses single nav bar only */}
             <div key={homeTab} style={{ animation: 'fadeIn 0.35s ease-out' }}>
               {homeTab === 'business' && (
                 <>
@@ -659,8 +661,6 @@ const AppLayout: React.FC = () => {
     const tabToPage: Record<HomeTab, string> = {
       'home': 'home',
       'business': 'merchant',
-      'customers': 'consumer',
-      'marketplace': 'brands',
       'team': 'team',
     };
     return tabToPage[homeTab] || 'home';
