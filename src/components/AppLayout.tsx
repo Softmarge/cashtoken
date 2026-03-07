@@ -15,7 +15,7 @@ import BusinessAPIPage from './cashtoken/BusinessAPIPage';
 import NewsletterPage from './cashtoken/NewsletterPage';
 import OurTeam from './cashtoken/OurTeam';
 import FAQsPage from './cashtoken/FAQsPage';
-import ComingSoon from './cashtoken/ComingSoon';
+import Comingsoon from './cashtoken/Comingsoon';
 import GlobalAboutUs from './cashtoken/GlobalAboutUs';
 import AuthModal from './cashtoken/AuthModal';
 
