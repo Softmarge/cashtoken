@@ -14,6 +14,8 @@ interface HeaderProps {
   user: UserProfile | null;
   onSignInClick: () => void;
   onSignOut: () => void;
+  activeSite?: string;
+  navOverride?: { label: string; page: string }[];
 }
 
 const NigeriaFlag = ({ w = 28, h = 20 }: { w?: number; h?: number }) => (
@@ -52,7 +54,12 @@ const LiberiaFlag = ({ w = 28, h = 20 }: { w?: number; h?: number }) => (
   </svg>
 );
 
+const GlobalIcon = ({ w = 28, h = 20 }: { w?: number; h?: number }) => (
+  <GoldCoin size={Math.round((w + h) / 2)} />
+);
+
 const COUNTRIES = [
+  { name: 'Global',         code: 'GL', Flag: GlobalIcon },
   { name: 'Nigeria',        code: 'NG', Flag: NigeriaFlag },
   { name: 'United Kingdom', code: 'UK', Flag: UKFlag },
   { name: 'South Africa',   code: 'ZA', Flag: SouthAfricaFlag },
@@ -101,10 +108,25 @@ const CountryDropdown: React.FC<{
   </div>
 );
 
-const Header: React.FC<HeaderProps> = ({ currentPage, onNavigate }) => {
+const Header: React.FC<HeaderProps> = ({ currentPage, onNavigate, activeSite = 'nigeria', navOverride }) => {
+  const isNigeria = activeSite === 'nigeria' || activeSite === 'home';
+  const isGlobal  = activeSite === 'global';
   const [mobileOpen, setMobileOpen]           = useState(false);
   const [countryOpen, setCountryOpen]         = useState(false);
-  const [selectedCountry, setSelectedCountry] = useState(COUNTRIES[0]);
+  // 0=Global, 1=Nigeria — default based on which site is active
+  const defaultCountry = (activeSite === 'global') ? COUNTRIES[0] : COUNTRIES[1];
+  const [selectedCountry, setSelectedCountry] = useState(defaultCountry);
+
+  // Sync selected country whenever activeSite changes
+  useEffect(() => {
+    const nigeriaPages = ['nigeria', 'home'];
+    const globalPages  = ['global', 'globalaboutus', 'comingsoon', 'contact'];
+    if (globalPages.includes(activeSite ?? '')) {
+      setSelectedCountry(COUNTRIES[0]);
+    } else if (nigeriaPages.includes(activeSite ?? '')) {
+      setSelectedCountry(COUNTRIES[1]);
+    }
+  }, [activeSite]);
   const wrapperRef = useRef<HTMLDivElement>(null);
 
   // Close on outside click
@@ -118,15 +140,24 @@ const Header: React.FC<HeaderProps> = ({ currentPage, onNavigate }) => {
     return () => document.removeEventListener('mousedown', handler);
   }, []);
 
-  const navItems = [
-   
+  const navItems = navOverride ?? [
     { label: 'Business',   page: 'merchant' },
     { label: 'Newsletter', page: 'newsletter' },
     { label: 'About Us',   page: 'team' },
   ];
 
   const handleNav = (page: string) => { onNavigate(page); setMobileOpen(false); };
-  const handleSelect = (c: typeof COUNTRIES[0]) => { setSelectedCountry(c); setCountryOpen(false); };
+  const handleSelect = (c: typeof COUNTRIES[0]) => {
+    setSelectedCountry(c);
+    setCountryOpen(false);
+    if (c.code === 'GL') {
+      onNavigate('global');
+    } else if (c.code === 'NG') {
+      onNavigate('nigeria');
+    } else {
+      onNavigate('comingsoon');
+    }
+  };
   const { Flag: SelectedFlag } = selectedCountry;
 
   return (
@@ -139,9 +170,11 @@ const Header: React.FC<HeaderProps> = ({ currentPage, onNavigate }) => {
             {/* Logo */}
             <button onClick={() => handleNav('home')} className="flex items-center gap-2.5 hover:opacity-80 transition-opacity focus:outline-none">
               <GoldCoin size={42} />
-              <div className="flex flex-col leading-tight">
-                <span className="text-sm lg:text-base font-bold tracking-wider text-[#7B0F14]">CASHTOKEN</span>
-                <span className="text-[9px] lg:text-[11px] font-semibold tracking-[0.15em] text-[#B8860B]">REWARDS AFRICA</span>
+              <div className="flex flex-col items-start justify-center leading-none">
+                <span className="text-base lg:text-lg font-black text-[#7B0F14] leading-none tracking-tight uppercase">CASHTOKEN</span>
+                <span className="text-[9px] lg:text-[10px] font-bold tracking-[0.22em] text-[#DAA520] leading-none mt-1 uppercase">
+                  {isNigeria ? 'REWARDS AFRICA' : 'REWARDS'}
+                </span>
               </div>
             </button>
 
@@ -166,6 +199,7 @@ const Header: React.FC<HeaderProps> = ({ currentPage, onNavigate }) => {
                   className="flex items-center gap-1.5 hover:opacity-80 transition-opacity focus:outline-none"
                 >
                   <SelectedFlag w={28} h={19} />
+                  <span className="text-sm font-medium text-gray-700">{selectedCountry.name}</span>
                   <svg
                     width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#6B7280" strokeWidth="2.5" strokeLinecap="round"
                     style={{ transform: countryOpen ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s' }}
@@ -186,6 +220,7 @@ const Header: React.FC<HeaderProps> = ({ currentPage, onNavigate }) => {
                   className="flex items-center gap-1 hover:opacity-80 transition-opacity focus:outline-none"
                 >
                   <SelectedFlag w={22} h={15} />
+                  <span className="text-xs font-medium text-gray-700">{selectedCountry.name}</span>
                   <svg
                     width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#6B7280" strokeWidth="2.5" strokeLinecap="round"
                     style={{ transform: countryOpen ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s' }}
