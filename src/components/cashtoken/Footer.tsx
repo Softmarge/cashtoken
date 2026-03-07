@@ -16,11 +16,11 @@ const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
               <GoldCoin size={36} />
               <div>
                 <div className="font-bold tracking-wider text-white">CASHTOKEN</div>
-                <div className="text-[10px] tracking-[0.15em] text-[#DAA520]">REWARD INTERNATIONAL</div>
+                <div className="text-[10px] tracking-[0.15em] text-[#DAA520]">REWARD</div>
               </div>
             </div>
             <p className="text-gray-400 text-sm leading-relaxed">
-              The UK's premier universal reward wallet. Earn CashTokens from your favourite brands and win up to £1,000,000 weekly.
+              The premier universal reward wallet. Earn CashTokens from your favourite brands and win weekly.
             </p>
             <div className="flex gap-3 mt-5">
               {['facebook', 'twitter', 'instagram', 'linkedin'].map((social) => (
@@ -51,10 +51,10 @@ const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
 
         <div className="mt-12 pt-8 border-t border-white/10 flex flex-col md:flex-row items-center justify-between gap-4">
           <p className="text-gray-500 text-sm">
-            &copy; 2026 CashToken Reward International. All rights reserved.
+            &copy; 2026 CashToken Reward. All rights reserved.
           </p>
           <p className="text-gray-500 text-xs">
-            1 United Kingdom &middot; 1 Reward Wallet &middot; CashToken
+           
           </p>
         </div>
       </div>
