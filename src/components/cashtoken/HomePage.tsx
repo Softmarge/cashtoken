@@ -17,7 +17,7 @@ const AnimatedCounter: React.FC<{ target: number; prefix?: string; suffix?: stri
     return () => clearInterval(timer);
   }, [visible, target]);
   const fmt = (n: number) =>
-    target >= 1000000 ? `₦${(n / 1000000).toFixed(0)},000,000` : `${n.toLocaleString()}`;
+    target >= 1000000 ? `£${(n / 1000000).toFixed(0)},000,000` : `${n.toLocaleString()}`;
   return <>{prefix}{fmt(count)}{suffix}</>;
 };
 
@@ -96,14 +96,6 @@ const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
 
             {/* Left */}
             <div className="order-2 lg:order-1">
-              <div className="flex justify-start mb-6 lg:mb-8">
-                <div className="relative">
-                  <GoldCoin size={100} premium animate />
-                  <div className="absolute inset-0 rounded-full pointer-events-none"
-                    style={{ boxShadow: '0 0 50px 16px rgba(218,165,32,0.18), 0 0 80px 32px rgba(218,165,32,0.08)' }} />
-                </div>
-              </div>
-
               <div style={{
                 opacity: heroAnimating ? 0 : 1,
                 transform: heroAnimating ? 'translateY(12px)' : 'translateY(0)',
