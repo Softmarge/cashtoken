@@ -90,7 +90,7 @@ const markets = [
     active: true,
     description: 'Bringing the power of CashToken to the UK market. Stay tuned for our European launch.',
     buttonLabel: 'Visit UK Site',
-    buttonAction: 'comingsoon',
+    buttonAction: 'uk',
   },
   {
     name: 'South Africa',
@@ -228,7 +228,7 @@ const GlobalPage: React.FC<GlobalPageProps> = ({ currentPage, onNavigate }) => {
             className="absolute inset-0 w-full h-full"
             style={{
               opacity: slideVisible ? 1 : 0,
-              transition: 'opacity 0.4s ease',
+              transition: 'opacity 0.6s ease',
             }}
           >
             <img
@@ -293,12 +293,12 @@ const GlobalPage: React.FC<GlobalPageProps> = ({ currentPage, onNavigate }) => {
 
           {/* HS2: image on the right */}
           {slideIndex === 1 && (
-            <div className="flex-2 flex justify-center lg:justify-end">
+            <div className="flex-1 flex justify-center lg:justify-end">
               <img
                 src={slide.image}
                 alt="Hero"
-                className="w-full h-[220px] sm:h-[300px] lg:h-[420px] object-contain"
-                style={{ maxHeight: 2500 }}
+                className="w-full max-w-sm lg:max-w-lg object-contain drop-shadow-2xl"
+                style={{ maxHeight: 460 }}
               />
             </div>
           )}
@@ -537,6 +537,102 @@ const GlobalPage: React.FC<GlobalPageProps> = ({ currentPage, onNavigate }) => {
             </button>
           </div>
         </div>
+
+        {/* ══════════════════════════
+          5. ARE YOU A CUSTOMER — App Download
+         ══════════════════════════ */}
+      <section className="py-8 lg:py-12 relative overflow-hidden"
+        style={{ background: 'radial-gradient(circle at 30% 20%, #A52228 0%, #7B0F14 40%, #4A0A0D 100%)' }}>
+        {/* Background glows */}
+        <div className="absolute top-0 right-0 w-96 h-96 rounded-full opacity-5 pointer-events-none"
+          style={{ background: 'radial-gradient(circle, white 0%, transparent 70%)', transform: 'translate(30%, -30%)' }} />
+        <div className="absolute bottom-0 left-0 w-64 h-64 rounded-full opacity-5 pointer-events-none"
+          style={{ background: 'radial-gradient(circle, #DAA520 0%, transparent 70%)', transform: 'translate(-30%, 30%)' }} />
+
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
+
+            {/* Left — text */}
+            <div>
+              <div className="inline-flex items-center gap-2 bg-white/10 rounded-full px-5 py-2 mb-3 border border-white/20">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#DAA520" strokeWidth="2" strokeLinecap="round">
+                  <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
+                </svg>
+                <span className="text-white/80 text-xs font-bold uppercase tracking-[0.2em]">For Customers</span>
+              </div>
+
+              <h2 className="text-2xl sm:text-3xl lg:text-4xl font-black text-white leading-tight mb-3">
+                Are You a <span className="text-[#DAA520]">Customer?</span>
+              </h2>
+
+              <p className="text-white/70 text-base leading-relaxed mb-4">
+                Turn every transaction into a Cash Reward. Download the CashToken app and start earning instantly — wherever you shop.
+              </p>
+
+              <ul className="space-y-2 mb-6">
+                {[
+                  'Earn Cash Rewards on every qualifying transaction',
+                  'Enter weekly draws for up to £1,000,000',
+                  'Instant cashback to your bank account',
+                  'Works across 500+ partner brands',
+                ].map((item, i) => (
+                  <li key={i} className="flex items-center gap-3 text-white/80 text-sm">
+                    <div className="flex-shrink-0 w-5 h-5 rounded-full bg-[#DAA520]/20 border border-[#DAA520]/40 flex items-center justify-center">
+                      <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#DAA520" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                        <polyline points="20 6 9 17 4 12" />
+                      </svg>
+                    </div>
+                    {item}
+                  </li>
+                ))}
+              </ul>
+
+              {/* App Store buttons */}
+              <div className="flex flex-col sm:flex-row gap-3">
+                {/* Google Play */}
+                <a href="#" className="group flex items-center gap-3 bg-black hover:bg-gray-900 text-white px-4 py-2.5 rounded-xl transition-all duration-300 hover:scale-105 hover:shadow-2xl border border-white/10">
+                  <svg width="22" height="22" viewBox="0 0 512 512" fill="white">
+                    <path d="M325.3 234.3L104.6 13l280.8 161.2-60.1 60.1zM47 0C34 6.8 25.3 19.2 25.3 35.3v441.3c0 16.1 8.7 28.5 21.7 35.3l246.7-246L47 0zm425.2 225.6l-58.9-34.1-65.7 64.5 65.7 64.5 60.1-34.1c17.1-9.7 17.1-34.9.8-60.8zM104.6 499l280.8-161.2-60.1-60.1L104.6 499z"/>
+                  </svg>
+                  <div className="text-left">
+                    <p className="text-white/50 text-xs leading-none mb-0.5">GET IT ON</p>
+                    <p className="font-bold text-sm">Google Play</p>
+                  </div>
+                </a>
+                {/* App Store */}
+                <a href="#" className="group flex items-center gap-3 bg-black hover:bg-gray-900 text-white px-4 py-2.5 rounded-xl transition-all duration-300 hover:scale-105 hover:shadow-2xl border border-white/10">
+                  <svg width="22" height="22" viewBox="0 0 814 1000" fill="white">
+                    <path d="M788.1 340.9c-5.8 4.5-108.2 62.2-108.2 190.5 0 148.4 130.3 200.9 134.2 202.2-.6 3.2-20.7 71.9-68.7 141.9-42.8 61.6-87.5 123.1-155.5 123.1s-85.5-39.5-164-39.5c-76 0-103.7 40.8-165.9 40.8s-105.3-57.8-155.5-127.4C46 790.7 0 663 0 541.8c0-207.8 134.4-317.9 266.8-317.9 99.8 0 162.6 55.2 219.1 55.2 54.1 0 126.9-58.8 238.8-58.8 18.6 0 124.3 2.9 191.1 84.9zm-201.4-201.5c-43.2 50.8-114.3 90.3-183.4 90.3-2.6 0-5.2-.1-7.8-.3 3.9-60.3 30.3-130.5 77.6-178.7 48.4-49.3 122.8-88.1 188.5-88.8 2 9.3 2.9 18.5 2.9 28.4 0 59.7-23.3 122.2-77.8 149.1z"/>
+                  </svg>
+                  <div className="text-left">
+                    <p className="text-white/50 text-xs leading-none mb-0.5">DOWNLOAD ON THE</p>
+                    <p className="font-bold text-sm">App Store</p>
+                  </div>
+                </a>
+              </div>
+              <p className="text-white/30 text-xs mt-3">Free to download. Available on iOS and Android.</p>
+            </div>
+
+            {/* Right — real app mockup */}
+            <div className="flex justify-center lg:justify-end">
+              <div className="relative">
+                <img
+                  src="/logos/app_mockup.webp"
+                  alt="CashToken App"
+                  className="w-56 sm:w-64 lg:w-[280px] drop-shadow-2xl"
+                />
+                <div className="absolute -top-4 -right-4 coin-float" style={{ animationDelay: '0s' }}>
+                  <GoldCoin size={36} animate />
+                </div>
+                <div className="absolute -bottom-4 -left-4 coin-float" style={{ animationDelay: '1s' }}>
+                  <GoldCoin size={28} animate />
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </section>
       </section>
 
       {/* ── FOOTER ── */}

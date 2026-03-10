@@ -66,7 +66,6 @@ const COUNTRIES = [
   { name: 'Liberia',        code: 'LR', Flag: LiberiaFlag },
 ];
 
-// Shared dropdown list
 const CountryDropdown: React.FC<{
   selected: typeof COUNTRIES[0];
   onSelect: (c: typeof COUNTRIES[0]) => void;
@@ -110,26 +109,29 @@ const CountryDropdown: React.FC<{
 
 const Header: React.FC<HeaderProps> = ({ currentPage, onNavigate, activeSite = 'nigeria', navOverride }) => {
   const isNigeria = activeSite === 'nigeria' || activeSite === 'home';
-  const isGlobal  = activeSite === 'global';
-  const [mobileOpen, setMobileOpen]           = useState(false);
-  const [countryOpen, setCountryOpen]         = useState(false);
-  // 0=Global, 1=Nigeria — default based on which site is active
-  const defaultCountry = (activeSite === 'global') ? COUNTRIES[0] : COUNTRIES[1];
+  const [mobileOpen, setMobileOpen]   = useState(false);
+  const [countryOpen, setCountryOpen] = useState(false);
+
+  const defaultCountry = activeSite === 'global' ? COUNTRIES[0] : COUNTRIES[1];
   const [selectedCountry, setSelectedCountry] = useState(defaultCountry);
 
-  // Sync selected country whenever activeSite changes
+  // Sync selected country flag whenever activeSite changes
   useEffect(() => {
-    const nigeriaPages = ['nigeria', 'home'];
     const globalPages  = ['global', 'globalaboutus', 'comingsoon', 'contact'];
+    const nigeriaPages = ['nigeria', 'home'];
+    const ukPages      = ['uk'];
+
     if (globalPages.includes(activeSite ?? '')) {
       setSelectedCountry(COUNTRIES[0]);
     } else if (nigeriaPages.includes(activeSite ?? '')) {
       setSelectedCountry(COUNTRIES[1]);
+    } else if (ukPages.includes(activeSite ?? '')) {
+      setSelectedCountry(COUNTRIES[2]);
     }
   }, [activeSite]);
+
   const wrapperRef = useRef<HTMLDivElement>(null);
 
-  // Close on outside click
   useEffect(() => {
     const handler = (e: MouseEvent) => {
       if (wrapperRef.current && !wrapperRef.current.contains(e.target as Node)) {
@@ -147,6 +149,7 @@ const Header: React.FC<HeaderProps> = ({ currentPage, onNavigate, activeSite = '
   ];
 
   const handleNav = (page: string) => { onNavigate(page); setMobileOpen(false); };
+
   const handleSelect = (c: typeof COUNTRIES[0]) => {
     setSelectedCountry(c);
     setCountryOpen(false);
@@ -154,15 +157,17 @@ const Header: React.FC<HeaderProps> = ({ currentPage, onNavigate, activeSite = '
       onNavigate('global');
     } else if (c.code === 'NG') {
       onNavigate('nigeria');
+    } else if (c.code === 'UK') {
+      onNavigate('uk');
     } else {
       onNavigate('comingsoon');
     }
   };
+
   const { Flag: SelectedFlag } = selectedCountry;
 
   return (
     <header className="sticky top-0 z-50 bg-white shadow-sm border-b border-gray-100">
-      {/* Single wrapper ref so outside-click works for both desktop + mobile trigger */}
       <div ref={wrapperRef}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16 lg:h-20">
@@ -213,7 +218,6 @@ const Header: React.FC<HeaderProps> = ({ currentPage, onNavigate, activeSite = '
 
             {/* Mobile right */}
             <div className="flex items-center gap-3 lg:hidden">
-              {/* Country trigger — mobile */}
               <div className="relative">
                 <button
                   onClick={() => setCountryOpen(v => !v)}
