@@ -17,7 +17,35 @@ import OurTeam from './cashtoken/OurTeam';
 import FAQsPage from './cashtoken/FAQsPage';
 import ComingSoon from './cashtoken/ComingSoon';
 import GlobalAboutUs from './cashtoken/GlobalAboutUs';
+import UK_Page from './cashtoken/UK_Page';
+import UK_Header from './cashtoken/UK_Header';
+import UK_Footer from './cashtoken/UK_Footer';
+import UK_AboutUs from './cashtoken/UK_AboutUs';
+import UK_NewsletterPage from './cashtoken/UK_NewsletterPage';
+import UK_BrandsPage from './cashtoken/UK_BrandsPage';
+import UK_BrandDetails from './cashtoken/UK_BrandDetails';
+import UK_AirtimeDetails from './cashtoken/UK_AirtimeDetails';
+import UK_BusinessLanding from './cashtoken/UK_BusinessLanding';
+import UK_BusinessSignup from './cashtoken/UK_BusinessSignup';
+import UK_BusinessAPIPage from './cashtoken/UK_BusinessAPIPage';
+import UK_BusinessDashboard from './cashtoken/UK_BusinessDashboard';
+import UK_ConsumerDashboard from './cashtoken/UK_ConsumerDashboard';
 import AuthModal from './cashtoken/AuthModal';
+
+// All page keys that belong to the UK site
+const UK_PAGES = new Set([
+  'uk',
+  'ukbusiness',
+  'uknewsletter',
+  'ukbrands',
+  'ukteam',
+  'ukaboutus',
+  'ukbrandDetails',
+  'ukairtimeDetails',
+  'ukconsumer',
+  'ukfaqs',
+  'ukcontact',
+]);
 
 type HomeTab = 'home' | 'business' | 'team';
 
@@ -38,7 +66,6 @@ interface Transaction {
 }
 
 const AppLayout: React.FC = () => {
-  // Global page is the index — default page is 'global'
   const [currentPage, setCurrentPage] = useState('global');
   const [walletBalance, setWalletBalance] = useState(1247.50);
   const [selectedBrand, setSelectedBrand] = useState<any>(null);
@@ -49,15 +76,21 @@ const AppLayout: React.FC = () => {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [businessRegistered, setBusinessRegistered] = useState(false);
   const [businessView, setBusinessView] = useState<'landing' | 'signup' | 'api' | 'dashboard'>('landing');
+  const [ukBusinessView, setUkBusinessView] = useState<'landing' | 'signup' | 'api' | 'dashboard'>('landing');
   const [profileForm, setProfileForm] = useState({ full_name: '', saving: false, saved: false });
   const [homeTab, setHomeTab] = useState<HomeTab>('home');
+  const [isDemoUser, setIsDemoUser] = useState(false);
+
+  // Derived: are we currently on a UK page?
+  const isUKSite = UK_PAGES.has(currentPage);
 
   // ─── Auth listener ───
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       if (session?.user) {
+        setIsDemoUser(false);
         await loadUserData(session.user.id, session.user.email || '');
-      } else {
+      } else if (!isDemoUser) {
         setUser(null);
         setWalletBalance(1247.50);
         setTransactions([]);
@@ -84,12 +117,7 @@ const AppLayout: React.FC = () => {
         .single();
 
       if (profile) {
-        setUser({
-          id: userId,
-          full_name: profile.full_name || '',
-          avatar_url: profile.avatar_url,
-          email,
-        });
+        setUser({ id: userId, full_name: profile.full_name || '', avatar_url: profile.avatar_url, email });
         setProfileForm((prev) => ({ ...prev, full_name: profile.full_name || '' }));
       }
 
@@ -109,7 +137,7 @@ const AppLayout: React.FC = () => {
 
   const loadTransactions = async (userId?: string) => {
     const uid = userId || user?.id;
-    if (!uid) return;
+    if (!uid || isDemoUser) return;
     const { data } = await supabase
       .from('transactions')
       .select('*')
@@ -119,11 +147,16 @@ const AppLayout: React.FC = () => {
     if (data) setTransactions(data as Transaction[]);
   };
 
-  const handleUpdateBalance = useCallback(async (amount: number, description: string = '', type: string = 'deposit', brand: string | null = null) => {
+  const handleUpdateBalance = useCallback(async (
+    amount: number,
+    description: string = '',
+    type: string = 'deposit',
+    brand: string | null = null,
+  ) => {
     const newBalance = Math.max(0, walletBalance + amount);
     setWalletBalance(newBalance);
 
-    if (user) {
+    if (user && !isDemoUser) {
       await supabase
         .from('wallets')
         .update({ balance: newBalance, updated_at: new Date().toISOString() })
@@ -139,20 +172,35 @@ const AppLayout: React.FC = () => {
       });
 
       await loadTransactions();
+    } else if (isDemoUser) {
+      const newTx: Transaction = {
+        id: `demo-${Date.now()}`,
+        type: amount < 0 ? (type === 'gift_card' ? 'gift_card' : 'withdrawal') : type,
+        amount: Math.abs(amount),
+        description: description || (amount < 0 ? 'Wallet debit' : 'Wallet credit'),
+        brand,
+        created_at: new Date().toISOString(),
+      };
+      setTransactions((prev) => [newTx, ...prev]);
     }
-  }, [walletBalance, user]);
+  }, [walletBalance, user, isDemoUser]);
 
   const handleSimpleBalanceUpdate = useCallback((amount: number) => {
-    handleUpdateBalance(amount, amount < 0 ? 'Withdrawal' : 'Deposit', amount < 0 ? 'withdrawal' : 'deposit');
+    handleUpdateBalance(
+      amount,
+      amount < 0 ? 'Withdrawal' : 'Deposit',
+      amount < 0 ? 'withdrawal' : 'deposit',
+    );
   }, [handleUpdateBalance]);
 
   const handleNavigate = (page: string) => {
+    // Nigeria tab mapping (only applies when on Nigeria/home side)
     const tabMapping: Record<string, HomeTab> = {
       'merchant': 'business',
-      'team': 'team',
+      'team':     'team',
     };
 
-    if (tabMapping[page]) {
+    if (!UK_PAGES.has(page) && tabMapping[page]) {
       setCurrentPage('home');
       setHomeTab(tabMapping[page]);
       setSelectedBrand(null);
@@ -167,6 +215,7 @@ const AppLayout: React.FC = () => {
     setSelectedAirtimeProvider(null);
     if (page === 'home') setHomeTab('home');
     if (page === 'merchant') setBusinessView('landing');
+    if (page === 'ukbusiness') setUkBusinessView('landing');
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
@@ -176,35 +225,54 @@ const AppLayout: React.FC = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  const handleSelectBrand = (brand: any) => {
+  const handleSelectBrand = (brand: any, ukSide = false) => {
     setSelectedBrand(brand);
-    setCurrentPage('brandDetails');
+    setCurrentPage(ukSide ? 'ukbrandDetails' : 'brandDetails');
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  const handleSelectAirtime = (provider: any) => {
+  const handleSelectAirtime = (provider: any, ukSide = false) => {
     setSelectedAirtimeProvider(provider);
-    setCurrentPage('airtimeDetails');
+    setCurrentPage(ukSide ? 'ukairtimeDetails' : 'airtimeDetails');
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  const handleAuthSuccess = () => {};
+  const handleAuthSuccess = (demoUser?: UserProfile) => {
+    if (demoUser) {
+      setIsDemoUser(true);
+      setUser(demoUser);
+      setWalletBalance(1247.50);
+      setTransactions([]);
+      setProfileForm((prev) => ({ ...prev, full_name: demoUser.full_name }));
+    }
+  };
 
   const handleSignOut = async () => {
+    if (isDemoUser) {
+      setIsDemoUser(false);
+      setUser(null);
+      setWalletBalance(1247.50);
+      setTransactions([]);
+      // Stay on UK side if signed out from UK, otherwise go global
+      setCurrentPage(isUKSite ? 'uk' : 'global');
+      return;
+    }
     await supabase.auth.signOut();
     setUser(null);
     setWalletBalance(1247.50);
     setTransactions([]);
-    setCurrentPage('global');
+    setCurrentPage(isUKSite ? 'uk' : 'global');
   };
 
   const handleSaveProfile = async () => {
     if (!user) return;
     setProfileForm((prev) => ({ ...prev, saving: true, saved: false }));
-    await supabase
-      .from('profiles')
-      .update({ full_name: profileForm.full_name, updated_at: new Date().toISOString() })
-      .eq('id', user.id);
+    if (!isDemoUser) {
+      await supabase
+        .from('profiles')
+        .update({ full_name: profileForm.full_name, updated_at: new Date().toISOString() })
+        .eq('id', user.id);
+    }
     setUser((prev) => prev ? { ...prev, full_name: profileForm.full_name } : null);
     setProfileForm((prev) => ({ ...prev, saving: false, saved: true }));
     setTimeout(() => setProfileForm((prev) => ({ ...prev, saved: false })), 3000);
@@ -229,12 +297,129 @@ const AppLayout: React.FC = () => {
     </div>
   );
 
-  // ─── Determine if we show the shared Header/Footer ───
-  // GlobalPage has its own nav bar built in, so skip shared Header for it
   const isGlobalPage = currentPage === 'global';
-  const isNigeriaOrInner = currentPage !== 'global';
 
+  // ─── UK PAGES ───────────────────────────────────────────────────────────────
+  const renderUKPage = () => {
+    switch (currentPage) {
+
+      case 'uk':
+        return <UK_Page onNavigate={handleNavigate} walletBalance={walletBalance} />;
+
+      case 'ukteam':
+        return (
+          <>
+            <BackButton label="Back to UK Home" onClick={() => handleNavigate('uk')} />
+            <UK_AboutUs onNavigate={handleNavigate} />
+          </>
+        );
+
+      case 'uknewsletter':
+        return (
+          <>
+            <BackButton label="Back to UK Home" onClick={() => handleNavigate('uk')} />
+            <UK_NewsletterPage />
+          </>
+        );
+
+      case 'ukbrands':
+        return (
+          <UK_BrandsPage
+            onSelectBrand={(b: any) => handleSelectBrand(b, true)}
+            onSelectAirtime={(p: any) => handleSelectAirtime(p, true)}
+            onBack={() => handleNavigate('uk')}
+          />
+        );
+
+      case 'ukbrandDetails':
+        return selectedBrand ? (
+          <UK_BrandDetails
+            brand={selectedBrand}
+            walletBalance={walletBalance}
+            onUpdateBalance={(amt: number) => handleBrandPayment(amt, selectedBrand?.name)}
+            onBack={() => handleNavigate('ukbrands')}
+            userName={user?.full_name}
+          />
+        ) : (
+          <UK_BrandsPage
+            onSelectBrand={(b: any) => handleSelectBrand(b, true)}
+            onSelectAirtime={(p: any) => handleSelectAirtime(p, true)}
+            onBack={() => handleNavigate('uk')}
+          />
+        );
+
+      case 'ukairtimeDetails':
+        return selectedAirtimeProvider ? (
+          <UK_AirtimeDetails
+            provider={selectedAirtimeProvider}
+            walletBalance={walletBalance}
+            onUpdateBalance={(amt: number) => handleAirtimePayment(amt, selectedAirtimeProvider?.name)}
+            onBack={() => handleNavigate('ukbrands')}
+            userName={user?.full_name}
+          />
+        ) : (
+          <UK_BrandsPage
+            onSelectBrand={(b: any) => handleSelectBrand(b, true)}
+            onSelectAirtime={(p: any) => handleSelectAirtime(p, true)}
+            onBack={() => handleNavigate('uk')}
+          />
+        );
+
+      case 'ukbusiness': {
+        if (ukBusinessView === 'signup') {
+          return (
+            <>
+              <BackButton label="Back" onClick={() => { setUkBusinessView('landing'); window.scrollTo({ top: 0, behavior: 'smooth' }); }} />
+              <UK_BusinessSignup
+                onSignupComplete={() => { setUkBusinessView('dashboard'); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
+                onSignIn={() => setAuthModalOpen(true)}
+              />
+            </>
+          );
+        }
+        if (ukBusinessView === 'api') {
+          return (
+            <UK_BusinessAPIPage
+              onBack={() => { setUkBusinessView('landing'); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
+            />
+          );
+        }
+        if (ukBusinessView === 'dashboard') {
+          return <UK_BusinessDashboard />;
+        }
+        return (
+          <>
+            <BackButton label="Back to UK Home" onClick={() => handleNavigate('uk')} />
+            <UK_BusinessLanding
+              onGetStarted={() => { setUkBusinessView('signup'); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
+              onChooseAPI={() => { setUkBusinessView('api'); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
+            />
+          </>
+        );
+      }
+
+      case 'ukconsumer':
+        return (
+          <>
+            <BackButton label="Back to UK Home" onClick={() => handleNavigate('uk')} />
+            <ConsumerDashboard
+              walletBalance={walletBalance}
+              onUpdateBalance={handleSimpleBalanceUpdate}
+              userName={user?.full_name}
+            />
+          </>
+        );
+
+      default:
+        return <UK_Page onNavigate={handleNavigate} walletBalance={walletBalance} />;
+    }
+  };
+
+  // ─── NIGERIA / SHARED PAGES ──────────────────────────────────────────────────
   const renderPage = () => {
+    // Delegate all UK pages
+    if (isUKSite) return renderUKPage();
+
     switch (currentPage) {
       case 'global':
         return <GlobalPage currentPage="global" onNavigate={handleNavigate} />;
@@ -263,11 +448,7 @@ const AppLayout: React.FC = () => {
                   <>
                     <BackButton label="Back" onClick={() => { setBusinessView('landing'); window.scrollTo({ top: 0, behavior: 'smooth' }); }} />
                     <BusinessSignup
-                      onSignupComplete={() => {
-                        setBusinessRegistered(true);
-                        setBusinessView('dashboard');
-                        window.scrollTo({ top: 0, behavior: 'smooth' });
-                      }}
+                      onSignupComplete={() => { setBusinessRegistered(true); setBusinessView('dashboard'); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
                       onSignIn={() => setAuthModalOpen(true)}
                     />
                   </>
@@ -288,14 +469,20 @@ const AppLayout: React.FC = () => {
               <HomePage onNavigate={handleNavigate} walletBalance={walletBalance} />
             )}
             {homeTab === 'marketplace' && (
-              <BrandsPage onSelectBrand={handleSelectBrand} onSelectAirtime={handleSelectAirtime} />
+              <BrandsPage onSelectBrand={(b) => handleSelectBrand(b, false)} onSelectAirtime={(p) => handleSelectAirtime(p, false)} />
             )}
             {homeTab === 'team' && <OurTeam />}
           </div>
         );
 
       case 'brands':
-        return <BrandsPage onSelectBrand={handleSelectBrand} onSelectAirtime={handleSelectAirtime} onBack={() => handleNavigate('home')} />;
+        return (
+          <BrandsPage
+            onSelectBrand={(b) => handleSelectBrand(b, false)}
+            onSelectAirtime={(p) => handleSelectAirtime(p, false)}
+            onBack={() => handleNavigate('home')}
+          />
+        );
 
       case 'brandDetails':
         return selectedBrand ? (
@@ -307,7 +494,11 @@ const AppLayout: React.FC = () => {
             userName={user?.full_name}
           />
         ) : (
-          <BrandsPage onSelectBrand={handleSelectBrand} onSelectAirtime={handleSelectAirtime} onBack={() => handleNavigate('home')} />
+          <BrandsPage
+            onSelectBrand={(b) => handleSelectBrand(b, false)}
+            onSelectAirtime={(p) => handleSelectAirtime(p, false)}
+            onBack={() => handleNavigate('home')}
+          />
         );
 
       case 'airtimeDetails':
@@ -320,7 +511,11 @@ const AppLayout: React.FC = () => {
             userName={user?.full_name}
           />
         ) : (
-          <BrandsPage onSelectBrand={handleSelectBrand} onSelectAirtime={handleSelectAirtime} onBack={() => handleNavigate('home')} />
+          <BrandsPage
+            onSelectBrand={(b) => handleSelectBrand(b, false)}
+            onSelectAirtime={(p) => handleSelectAirtime(p, false)}
+            onBack={() => handleNavigate('home')}
+          />
         );
 
       case 'consumer':
@@ -391,7 +586,7 @@ const AppLayout: React.FC = () => {
       case 'profile':
         return (
           <>
-            <BackButton label="Back to Home" onClick={() => handleNavigate('home')} />
+            <BackButton label="Back to Home" onClick={() => handleNavigate(isUKSite ? 'uk' : 'home')} />
             {renderProfilePage()}
           </>
         );
@@ -399,7 +594,7 @@ const AppLayout: React.FC = () => {
       case 'transactions':
         return (
           <>
-            <BackButton label="Back to Home" onClick={() => handleNavigate('home')} />
+            <BackButton label="Back to Home" onClick={() => handleNavigate(isUKSite ? 'uk' : 'home')} />
             {renderTransactionsPage()}
           </>
         );
@@ -415,7 +610,6 @@ const AppLayout: React.FC = () => {
     return tabToPage[homeTab] || 'home';
   };
 
-  // ─── Profile Settings Page ───
   const renderProfilePage = () => {
     if (!user) {
       return (
@@ -434,6 +628,11 @@ const AppLayout: React.FC = () => {
       <div className="bg-gray-50 min-h-screen">
         <div className="max-w-2xl mx-auto px-4 sm:px-6 py-8">
           <h1 className="text-2xl font-bold text-gray-900 mb-6">Profile Settings</h1>
+          {isDemoUser && (
+            <div className="mb-4 bg-[#DAA520]/10 border border-[#DAA520]/30 text-[#7B0F14] text-sm rounded-xl px-4 py-3 font-medium">
+              You are using a demo account. Changes will not be saved permanently.
+            </div>
+          )}
           <div className="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden">
             <div className="p-6 flex items-center gap-5 border-b border-gray-100" style={{ background: 'radial-gradient(circle at 30% 20%, #A52228 0%, #7B0F14 40%, #4A0A0D 100%)' }}>
               <div className="w-20 h-20 rounded-full bg-white/20 flex items-center justify-center text-white text-2xl font-bold border-4 border-[#DAA520]">
@@ -478,7 +677,6 @@ const AppLayout: React.FC = () => {
     );
   };
 
-  // ─── Transaction History Page ───
   const renderTransactionsPage = () => {
     if (!user) {
       return (
@@ -495,20 +693,20 @@ const AppLayout: React.FC = () => {
 
     const getTypeLabel = (type: string) => {
       switch (type) {
-        case 'gift_card': return 'Gift Card';
+        case 'gift_card':  return 'Gift Card';
         case 'withdrawal': return 'Withdrawal';
-        case 'reward': return 'Reward';
-        case 'deposit': return 'Deposit';
-        default: return type;
+        case 'reward':     return 'Reward';
+        case 'deposit':    return 'Deposit';
+        default:           return type;
       }
     };
     const getTypeColor = (type: string) => {
       switch (type) {
-        case 'gift_card': return { text: '#7B0F14', bgLight: '#F4E6E6' };
+        case 'gift_card':  return { text: '#7B0F14', bgLight: '#F4E6E6' };
         case 'withdrawal': return { text: '#E31837', bgLight: '#FEE2E2' };
-        case 'reward': return { text: '#22C55E', bgLight: '#DCFCE7' };
-        case 'deposit': return { text: '#DAA520', bgLight: '#FEF9C3' };
-        default: return { text: '#6B7280', bgLight: '#F3F4F6' };
+        case 'reward':     return { text: '#22C55E', bgLight: '#DCFCE7' };
+        case 'deposit':    return { text: '#DAA520', bgLight: '#FEF9C3' };
+        default:           return { text: '#6B7280', bgLight: '#F3F4F6' };
       }
     };
 
@@ -528,7 +726,12 @@ const AppLayout: React.FC = () => {
           {transactions.length === 0 ? (
             <div className="bg-white rounded-3xl shadow-sm border border-gray-100 p-12 text-center">
               <p className="text-gray-500">No transactions yet. Start shopping to earn CashTokens!</p>
-              <button onClick={() => handleNavigate('brands')} className="mt-4 bg-[#7B0F14] text-white px-6 py-2.5 rounded-xl text-sm font-semibold hover:bg-[#5A0B10] transition-colors">Browse Brands</button>
+              <button
+                onClick={() => handleNavigate(isUKSite ? 'ukbrands' : 'brands')}
+                className="mt-4 bg-[#7B0F14] text-white px-6 py-2.5 rounded-xl text-sm font-semibold hover:bg-[#5A0B10] transition-colors"
+              >
+                Browse Brands
+              </button>
             </div>
           ) : (
             <div className="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden">
@@ -540,10 +743,10 @@ const AppLayout: React.FC = () => {
                     <div key={tx.id} className="flex items-center gap-4 px-5 py-4 hover:bg-gray-50/50 transition-colors">
                       <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0" style={{ backgroundColor: colors.bgLight }}>
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={colors.text} strokeWidth="2" strokeLinecap="round">
-                          {tx.type === 'gift_card' && <><polyline points="20 12 20 22 4 22 4 12" /><rect x="2" y="7" width="20" height="5" /><line x1="12" y1="22" x2="12" y2="7" /></>}
+                          {tx.type === 'gift_card'  && <><polyline points="20 12 20 22 4 22 4 12" /><rect x="2" y="7" width="20" height="5" /><line x1="12" y1="22" x2="12" y2="7" /></>}
                           {tx.type === 'withdrawal' && <><line x1="12" y1="5" x2="12" y2="19" /><polyline points="19 12 12 19 5 12" /></>}
-                          {tx.type === 'reward' && <><polyline points="23 6 13.5 15.5 8.5 10.5 1 18" /><polyline points="17 6 23 6 23 12" /></>}
-                          {tx.type === 'deposit' && <><line x1="12" y1="19" x2="12" y2="5" /><polyline points="5 12 12 5 19 12" /></>}
+                          {tx.type === 'reward'     && <><polyline points="23 6 13.5 15.5 8.5 10.5 1 18" /><polyline points="17 6 23 6 23 12" /></>}
+                          {tx.type === 'deposit'    && <><line x1="12" y1="19" x2="12" y2="5" /><polyline points="5 12 12 5 19 12" /></>}
                         </svg>
                       </div>
                       <div className="flex-1 min-w-0">
@@ -574,8 +777,17 @@ const AppLayout: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-white flex flex-col">
-      {/* Global page has its own nav — skip shared Header for it */}
-      {(
+
+      {/* Header — UK header persists across ALL uk* pages */}
+      {isUKSite ? (
+        <UK_Header
+          currentPage={currentPage}
+          onNavigate={handleNavigate}
+          user={user}
+          onSignInClick={() => setAuthModalOpen(true)}
+          onSignOut={handleSignOut}
+        />
+      ) : (
         <Header
           currentPage={getHeaderActivePage()}
           onNavigate={handleNavigate}
@@ -583,11 +795,13 @@ const AppLayout: React.FC = () => {
           onSignInClick={() => setAuthModalOpen(true)}
           onSignOut={handleSignOut}
           activeSite={currentPage}
-          navOverride={currentPage === 'global' || currentPage === 'globalaboutus' ? [
-            { label: 'Newsletter', page: 'newsletter' },
-            { label: 'About Us',   page: 'globalaboutus' },
-            { label: 'Contact Us', page: 'contact' },
-          ] : undefined}
+          navOverride={
+            ['global', 'globalaboutus'].includes(currentPage) ? [
+              { label: 'Newsletter', page: 'newsletter' },
+              { label: 'About Us',   page: 'globalaboutus' },
+              { label: 'Contact Us', page: 'contact' },
+            ] : undefined
+          }
         />
       )}
 
@@ -595,8 +809,12 @@ const AppLayout: React.FC = () => {
         {renderPage()}
       </main>
 
-      {/* Global page has its own footer */}
-      {!isGlobalPage && <Footer onNavigate={handleNavigate} />}
+      {/* Footer — UK footer persists across ALL uk* pages */}
+      {!isGlobalPage && (
+        isUKSite
+          ? <UK_Footer onNavigate={handleNavigate} />
+          : <Footer onNavigate={handleNavigate} />
+      )}
 
       <AuthModal
         isOpen={authModalOpen}
@@ -631,7 +849,7 @@ const AppLayout: React.FC = () => {
         main > div { animation: fadeIn 0.3s ease-in-out; }
         @keyframes fadeIn {
           from { opacity: 0; transform: translateY(8px); }
-          to { opacity: 1; transform: translateY(0); }
+          to   { opacity: 1; transform: translateY(0); }
         }
       `}</style>
     </div>
