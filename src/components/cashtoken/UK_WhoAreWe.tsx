@@ -338,7 +338,7 @@ const UK_WhoAreWe: React.FC = () => {
 
           {/* Letter-by-letter animated heading */}
           <div className="overflow-hidden mb-4">
-            <h2 className="text-6xl sm:text-7xl md:text-8xl lg:text-9xl xl:text-[10rem] font-black tracking-tight leading-none">
+            <h2 className="text-4xl sm:text-7xl md:text-8xl lg:text-9xl xl:text-[10rem] font-black tracking-tight leading-none">
               <SplitText text="WHO" visible={hero.visible} baseDelay={100} letterDelay={80} className="text-gray-900 mr-4 sm:mr-8" />
               <SplitText text="ARE" visible={hero.visible} baseDelay={400} letterDelay={80} className="text-gray-700 mr-4 sm:mr-8" />
               <span className="shimmer-wine text-glow">
@@ -1725,5 +1725,6 @@ const UK_WhoAreWe: React.FC = () => {
     </section>
   );
 };
+
 
 export default UK_WhoAreWe;
