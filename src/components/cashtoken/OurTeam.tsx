@@ -209,18 +209,18 @@ const OurTeam: React.FC = () => {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start">
             <div>
               <h2 className="text-3xl lg:text-4xl font-black text-gray-900 mb-6">
-                We operate a modular{' '}
-                <span className="text-[#7B0F14]">CashToken Reward</span> ecosystem
+                We operate a {' '}
+                <span className="text-[#7B0F14]">Cash Reward Offer </span> Model
               </h2>
               <p className="text-gray-500 text-base leading-relaxed mb-6 text-justify">
-                Our core technology powers Cash Rewards as a Service, supported by a flexible suite of solutions adaptable to any sector or audience.
+                Central to our platform is the CashToken Reward Offer Model; a single, secure digital hub for modern merchant incentivization. Unlike traditional loyalty schemes, the CRO Model offers total flexibility in how rewards are structured, funded, and delivered.
               </p>
             </div>
             <div className="space-y-4">
               {[
-                { icon: '🏛️', text: 'Governments to reward citizen patronage through approved state-owned businesses' },
-                { icon: '🏢', text: 'Brands to deepen engagement and accelerate revenue growth' },
-                { icon: '👥', text: 'Customers to receive meaningful Cash Rewards on everyday transactions' },
+                { icon: '🏛️', text: 'Aggregate Your Rewards; Every CashToken from any partner merchant is instantly stored in your personal wallet' },
+                { icon: '🏢', text: 'Instant CashBack, Seamlessly move your cashback to your bank account anytime.' },
+                { icon: '👥', text: 'Life-Changing Potential; Every CashToken, a guaranteed entry into life changing rewards' },
               ].map((item, i) => (
                 <div key={i} className="flex items-start gap-4 p-4 rounded-2xl bg-[#7B0F14]/[0.03] border border-[#7B0F14]/[0.06]">
                   <span className="text-2xl">{item.icon}</span>
