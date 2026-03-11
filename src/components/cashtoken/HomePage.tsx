@@ -299,7 +299,7 @@ const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
                     </div>
                     {item}
                   </li>
-                ))}10M
+                ))}
               </ul>
 
               {/* App Store buttons */}
