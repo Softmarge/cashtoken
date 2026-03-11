@@ -17,7 +17,7 @@ const AnimatedCounter: React.FC<{ target: number; prefix?: string; suffix?: stri
     return () => clearInterval(timer);
   }, [visible, target]);
   const fmt = (n: number) =>
-    target >= 1000000 ? `£${(n / 1000000).toFixed(0)},000,000` : `${n.toLocaleString()}`;
+    target >= 1000000 ? `₦${(n / 1000000).toFixed(0)},000,000` : `${n.toLocaleString()}`;
   return <>{prefix}{fmt(count)}{suffix}</>;
 };
 
@@ -281,13 +281,13 @@ const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
               </h2>
 
               <p className="text-white/70 text-base leading-relaxed mb-4">
-                Turn every transaction into a Cash Reward. Download the CashToken app and start earning instantly — wherever you shop.
+                Turn every transaction into a Cash Reward. Download the CashToken app and start earning instantly - wherever you shop.
               </p>
 
               <ul className="space-y-2 mb-6">
                 {[
                   'Earn Cash Rewards on every qualifying transaction',
-                  'Enter weekly draws for up to £1,000,000',
+                  'Enter weekly draws for up to ₦10,000,000',
                   'Instant cashback to your bank account',
                   'Works across 500+ partner brands',
                 ].map((item, i) => (
@@ -299,7 +299,7 @@ const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
                     </div>
                     {item}
                   </li>
-                ))}
+                ))}10M
               </ul>
 
               {/* App Store buttons */}
