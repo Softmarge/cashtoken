@@ -20,7 +20,7 @@ const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
               </div>
             </div>
             <p className="text-gray-400 text-sm leading-relaxed">
-              The UK's premier universal reward wallet. Earn CashTokens from your favourite brands and win up to £1,000,000 weekly.
+              The premier universal reward wallet. Earn CashTokens from your favourite brands and win 5k to 10M weekly.
             </p>
             <div className="flex gap-3 mt-5">
               {['facebook', 'twitter', 'instagram', 'linkedin'].map((social) => (
