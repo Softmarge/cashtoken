@@ -964,7 +964,7 @@ const UK_WhoAreWe: React.FC = () => {
                     transition: 'all 1s cubic-bezier(0.34, 1.56, 0.64, 1) 0.4s',
                   }}
                 >
-                  Business
+                  Partnership
                 </span>{' '}
                 <span
                   className="inline-block text-[#7B0F14]"
@@ -1728,3 +1728,4 @@ const UK_WhoAreWe: React.FC = () => {
 
 
 export default UK_WhoAreWe;
+
